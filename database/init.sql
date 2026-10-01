@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS usuarios (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabla de médico
+CREATE TABLE IF NOT EXISTS medicos (
+    id_medico    INT PRIMARY KEY,
+    especialidad VARCHAR(80) NOT NULL,
+    consultorio  VARCHAR(30),
+    matricula    VARCHAR(30) UNIQUE,
+    CONSTRAINT fk_medico_usuario FOREIGN KEY (id_medico)
+        REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+
 -- 3. Tabla de Fechas Disponibles
 CREATE TABLE IF NOT EXISTS fechas_disponibles (
     id_fecha SERIAL PRIMARY KEY,

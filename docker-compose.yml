@@ -1,7 +1,7 @@
 services:
   postgres_db:
     image: postgres:16-alpine
-    container_name: ssu_db                # O el nombre de contenedor de este proyecto
+    container_name: ssu_db
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -17,7 +17,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: ssu_pgadmin           # O el nombre de contenedor de este proyecto
+    container_name: ssu_pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -35,16 +35,21 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ssu_backend           # O el nombre de contenedor de este proyecto
+    container_name: ssu_backend
     restart: always
     ports:
       - "${BACKEND_PORT_HOST}:${PORT}"
     environment:
       - PORT=${PORT}
+      - DB_HOST=postgres_db
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - DB_HOST=postgres_db
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -57,7 +62,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: ssu_frontend          # O el nombre de contenedor de este proyecto
+    container_name: ssu_frontend
     restart: always
     ports:
       - "${VITE_PORT}:3000"

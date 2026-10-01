@@ -2,16 +2,20 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Login de Usuario
+// Login de Usuario mediante Correo y Contraseña
 const login = async (req, res) => {
-  const { ci, contrasena } = req.body;
 
-  if (!ci || !contrasena) {
-    return res.status(400).json({ mensaje: 'Por favor, proporcione CI y contraseña' });
+  console.log('Headers recibidos:', req.headers['content-type']);
+  console.log('Body recibido:', req.body);
+
+  const { correo, contrasena } = req.body;
+
+  if (!correo || !contrasena) {
+    return res.status(400).json({ mensaje: 'Por favor, proporcione correo y contraseña' });
   }
 
   try {
-    const result = await db.query('SELECT * FROM usuarios WHERE ci = $1', [ci]);
+    const result = await db.query('SELECT * FROM usuarios WHERE correo = $1', [correo]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
@@ -29,7 +33,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       {
         id_usuario: usuario.id_usuario,
-        ci: usuario.ci,
+        correo: usuario.correo,
         rol: usuario.rol,
         nombres: usuario.nombres,
         apellido_paterno: usuario.apellido_paterno
