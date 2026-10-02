@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Obtener todos los usuarios (Exclusivo Administrador)
 const obtenerUsuarios = async (req, res) => {

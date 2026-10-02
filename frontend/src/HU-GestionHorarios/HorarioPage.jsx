@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import HorarioForm from '../components/HorarioForm';
+import HorarioForm from './components/HorarioForm';
 import {
   listarHorarios,
   crearHorario,
   actualizarHorario,
   eliminarHorario,
-} from '../services/horarios.service';
+} from './services/horarios.service';
 
 const mensajeDeError = (err, porDefecto) => err.response?.data?.mensaje || porDefecto;
 

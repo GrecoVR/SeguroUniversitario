@@ -1,0 +1,72 @@
+/* =========================================
+   VISTA FECHAS DISPONIBLES (HU2)
+========================================= */
+
+.fechas-container {
+  width: 100%;
+  max-width: 900px; /* Ajuste para que la tabla no se estire demasiado */
+}
+
+.fechas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.btn-nuevo {
+  background-color: var(--button-blue);
+  color: #ffffff;
+  border: 1px solid #2563eb;
+  border-radius: 4px;
+  padding: 0.5rem 2.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-nuevo:hover {
+  background-color: var(--primary-blue);
+}
+
+.fechas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  margin-bottom: 4rem;
+}
+
+.fechas-table th {
+  color: var(--dark-blue);
+  font-weight: 700;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid transparent; /* Sin bordes según el mockup */
+}
+
+.fechas-table td {
+  padding: 0.8rem 0;
+  color: var(--text-dark);
+}
+
+.icon-cell {
+  cursor: pointer;
+}
+
+.fechas-footer {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.btn-atras {
+  background-color: #d1d5db; /* Gris claro */
+  color: #000000;
+  border: 1px solid #9ca3af;
+  border-radius: 4px;
+  padding: 0.5rem 3rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.btn-atras:hover {
+  background-color: #9ca3af;
+}
