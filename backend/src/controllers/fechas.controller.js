@@ -44,4 +44,31 @@ const obtenerFechas = async (req, res) => {
   }
 };
 
-module.exports = { crearFecha, obtenerFechas };
+// DELETE /api/fechas/:id
+const eliminarFecha = async (req, res) => {
+  const { id } = req.params;
+  const idMedico = req.usuario.id_usuario;
+
+  try {
+    // Solo eliminamos si la fecha coincide con el id_fecha y pertenece a este médico
+    const result = await db.query(
+      `DELETE FROM fechas_disponibles 
+       WHERE id_fecha = $1 AND id_medico = $2 
+       RETURNING id_fecha`,
+      [id, idMedico],
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ mensaje: "Fecha no encontrada o no tienes permisos" });
+    }
+
+    res.json({ mensaje: "Fecha eliminada correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar fecha:", error);
+    res.status(500).json({ mensaje: "Error al eliminar la fecha" });
+  }
+};
+
+module.exports = { crearFecha, obtenerFechas, eliminarFecha };

@@ -1,14 +1,52 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
+import { FichasAtencionGeneralPage, ID_ESTUDIANTE } from '../HU13-GestionarListaDeFichasMedicas/FichasAtencionGeneralPage';
+import { FormularioFichaPage } from '../HU14-AgendarFichaGeneral/FormularioFichaPage';
 import { CambiarContrasena } from '../HU24-CambiarContrasena/CambiarContrasena';
 import './styles/servicios.css';
 
-export const ServicioEstudiantePage = ({ onLogout, onNavigate }) => {
-  // Estado local para controlar si se muestra el menú o la vista de cambiar contraseña
-  const [vistaActual, setVistaActual] = useState('MENU');
+const paginasEstudiante = ['SERVICIOS', 'FICHAS', 'NUEVA_FICHA', 'EDITAR_FICHA', 'CAMBIAR_CONTRASENA'];
+
+export const ServicioEstudiantePage = ({ onLogout }) => {
+  const [pagina, setPagina] = useState('SERVICIOS');
+  const [fichaSeleccionada, setFichaSeleccionada] = useState(null);
+
+  const navegar = (destino, ficha = null) => {
+    if (!paginasEstudiante.includes(destino)) return;
+
+    setFichaSeleccionada(destino === 'EDITAR_FICHA' ? ficha : null);
+    setPagina(destino);
+  };
+
+  const volverAlMenu = () => setPagina('SERVICIOS');
+
+  if (pagina === 'FICHAS') {
+    return <FichasAtencionGeneralPage onNavigate={navegar} onLogout={onLogout} />;
+  }
+
+  if (pagina === 'NUEVA_FICHA' || pagina === 'EDITAR_FICHA') {
+    return (
+      <FormularioFichaPage
+        idEstudiante={ID_ESTUDIANTE}
+        ficha={fichaSeleccionada}
+        onNavigate={navegar}
+      />
+    );
+  }
+
+  if (pagina === 'CAMBIAR_CONTRASENA') {
+    return (
+      <div className="page-container">
+        <Navbar activeTab="Servicios" onNavigate={navegar} onLogout={onLogout} />
+        <main className="main-content">
+          <CambiarContrasena onBack={volverAlMenu} onSuccess={volverAlMenu} />
+        </main>
+      </div>
+    );
+  }
 
   const servicios = [
-    { label: 'Ficha Atención General', key: 'FICHA_ATENCION_GENERAL' },
+    { label: 'Ficha Atención General', key: 'FICHAS' },
     { label: 'Ver Recetas', key: 'RECETAS' },
     { label: 'Ver Laboratorios', key: 'LABORATORIOS' },
     { label: 'Ver Historial Médico', key: 'HISTORIAL_MEDICO' },
@@ -16,53 +54,33 @@ export const ServicioEstudiantePage = ({ onLogout, onNavigate }) => {
   ];
 
   const handleServiceClick = (key) => {
-    if (key === 'CAMBIAR_CONTRASENA') {
-      setVistaActual('CAMBIAR_CONTRASENA');
-    } else if (onNavigate) {
-      onNavigate(key);
-    }
-  };
-
-  const handleVolverAlMenu = () => {
-    setVistaActual('MENU');
+    navegar(key);
   };
 
   return (
     <div className="page-container">
       <Navbar
         activeTab="Servicios"
-        onNavigate={(key) => {
-          setVistaActual('MENU');
-          if (onNavigate) onNavigate(key);
-        }}
+        onNavigate={navegar}
         onLogout={onLogout}
       />
 
       <main className="main-content">
-        {vistaActual === 'CAMBIAR_CONTRASENA' ? (
-          <CambiarContrasena
-            onBack={handleVolverAlMenu}
-            onSuccess={handleVolverAlMenu}
-          />
-        ) : (
-          <>
-            <header className="services-header">
-              <h1 className="title-blue">SERVICIOS</h1>
-            </header>
+        <header className="services-header">
+          <h1 className="title-blue">SERVICIOS</h1>
+        </header>
 
-            <section className="services-menu">
-              {servicios.map((servicio) => (
-                <button
-                  key={servicio.key}
-                  className="btn-service"
-                  onClick={() => handleServiceClick(servicio.key)}
-                >
-                  {servicio.label}
-                </button>
-              ))}
-            </section>
-          </>
-        )}
+        <section className="services-menu">
+          {servicios.map((servicio) => (
+            <button
+              key={servicio.key}
+              className="btn-service"
+              onClick={() => handleServiceClick(servicio.key)}
+            >
+              {servicio.label}
+            </button>
+          ))}
+        </section>
       </main>
     </div>
   );

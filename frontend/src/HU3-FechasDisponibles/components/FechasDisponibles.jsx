@@ -1,22 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { NuevaFecha } from "./NuevaFecha";
 import "../styles/servicios.css";
 
 export const FechasDisponibles = ({ onBack }) => {
   const [vista, setVista] = useState("LISTA"); // 'LISTA' o 'NUEVO'
+  const [fechas, setFechas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Datos estáticos temporales
-  const fechas = [
-    { id: 2, fecha: "14/09/2026" },
-    { id: 1, fecha: "12/09/2026" },
-  ];
+  const cargarFechas = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await axios.get("http://localhost:4000/api/fechas");
+      setFechas(response.data);
+    } catch (err) {
+      setError("Error al cargar las fechas disponibles");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (vista === "LISTA") {
+      cargarFechas();
+    }
+  }, [vista]);
+
+  // --- NUEVA FUNCIÓN PARA ELIMINAR ---
+  const handleEliminar = async (idFecha) => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta fecha?",
+    );
+    if (!confirmar) return;
+
+    try {
+      await axios.delete(`http://localhost:4000/api/fechas/${idFecha}`);
+      // Volvemos a cargar la tabla para reflejar el cambio
+      cargarFechas();
+    } catch (err) {
+      alert(err.response?.data?.mensaje || "Error al eliminar la fecha");
+    }
+  };
 
   if (vista === "NUEVO") {
     return (
       <NuevaFecha
         onBack={() => setVista("LISTA")}
-        onSave={(nuevaFecha) => {
-          console.log("Guardando...", nuevaFecha);
+        onSave={() => {
           setVista("LISTA");
         }}
       />
@@ -32,6 +64,8 @@ export const FechasDisponibles = ({ onBack }) => {
         </button>
       </div>
 
+      {error && <div className="error-banner">{error}</div>}
+
       <table className="fechas-table">
         <thead>
           <tr>
@@ -42,14 +76,35 @@ export const FechasDisponibles = ({ onBack }) => {
           </tr>
         </thead>
         <tbody>
-          {fechas.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>📝 {item.fecha}</td>
-              <td className="icon-cell">📝</td>
-              <td className="icon-cell">🗑️</td>
+          {loading ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center", padding: "2rem" }}>
+                Cargando...
+              </td>
             </tr>
-          ))}
+          ) : fechas.length === 0 ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center", padding: "2rem" }}>
+                No hay fechas registradas.
+              </td>
+            </tr>
+          ) : (
+            fechas.map((item, index) => (
+              <tr key={item.idFecha}>
+                <td>{index + 1}</td>
+                <td>📝 {item.fecha}</td>
+                <td className="icon-cell">📝</td>
+                {/* Conectamos el evento de eliminar al ícono */}
+                <td
+                  className="icon-cell"
+                  onClick={() => handleEliminar(item.idFecha)}
+                  title="Eliminar fecha"
+                >
+                  🗑️
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 

@@ -1,0 +1,148 @@
+/* =========================================
+   ENCABEZADO CON ACCIÓN (TITULO + NUEVO)
+========================================= */
+
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.header-with-action .title-blue {
+  text-align: left;
+}
+
+.btn-primary {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--button-blue);
+  color: #ffffff;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-blue);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================================
+   TABLA DE FICHAS DE ATENCIÓN
+========================================= */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 3rem;
+}
+
+.fichas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.fichas-table th {
+  color: var(--dark-blue);
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.fichas-table td {
+  padding: 0.85rem 1rem;
+  color: var(--text-dark);
+  font-size: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.text-center {
+  text-align: center;
+}
+
+
+/* =========================================
+   BOTONES DE ACCIÓN EN TABLA E ICONOS
+========================================= */
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background-color: var(--light-bg);
+  transform: scale(1.1);
+}
+
+.btn-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  transform: none;
+}
+
+.ficha-empty-message {
+  padding: 1rem;
+  color: #475569;
+  text-align: center;
+}
+
+.btn-back {
+  background-color: #cbd5e1;
+  color: #334155;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  padding: 0.6rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-back:hover {
+  background-color: #94a3b8;
+  color: #ffffff;
+}
+
+
+/* =========================================
+   AJUSTES RESPONSIVE ADICIONALES
+========================================= */
+
+@media (max-width: 768px) {
+  .header-with-action {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-with-action .btn-primary {
+    width: 100%;
+  }
+
+  .fichas-table th,
+  .fichas-table td {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
+  }
+}

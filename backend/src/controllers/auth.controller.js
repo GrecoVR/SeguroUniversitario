@@ -1,61 +1,13 @@
 const db = require('../config/db');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const MAX_INTENTOS = 5;
-const BLOQUEO_MINUTOS = 15;
-
-// ============================================
-// REGISTRO DE USUARIO (Tu función)
-// ============================================
-const register = async (req, res) => {
-  console.log('Registro - Body recibido:', req.body);
-
-  const { nombres, apellido_paterno, ci, correo, contrasena, rol } = req.body;
-
-  if (!nombres || !apellido_paterno || !ci || !correo || !contrasena || !rol) {
-    return res.status(400).json({ error: 'Todos los campos obligatorios deben ser completados' });
-  }
-
-  if (!['ESTUDIANTE', 'MEDICO', 'ADMINISTRADOR'].includes(rol)) {
-    return res.status(400).json({ error: 'Rol inválido. Debe ser ESTUDIANTE, MEDICO o ADMINISTRADOR' });
-  }
-
-  try {
-    const existe = await db.query(
-      'SELECT * FROM usuarios WHERE correo = $1 OR ci = $2', 
-      [correo, ci]
-    );
-    
-    if (existe.rows.length > 0) {
-      return res.status(409).json({ error: 'El correo o el CI ya están registrados' });
-    }
-
-    const contrasenaHash = await bcrypt.hash(contrasena, 10);
-
-    const query = `
-      INSERT INTO usuarios (nombres, apellido_paterno, ci, correo, contrasena, rol)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id_usuario, nombres, apellido_paterno, ci, correo, rol
-    `;
-    
-    const result = await db.query(query, [nombres, apellido_paterno, ci, correo, contrasenaHash, rol]);
-    const usuario = result.rows[0];
-
-    res.status(201).json({
-      mensaje: 'Usuario registrado exitosamente',
-      user: usuario
-    });
-  } catch (error) {
-    console.error('Error en registro:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-};
-
-// ============================================
-// LOGIN (Versión de Enrique - más completa)
-// ============================================
+// Login de Usuario mediante Correo y Contraseña
 const login = async (req, res) => {
+
+  console.log('Headers recibidos:', req.headers['content-type']);
+  console.log('Body recibido:', req.body);
+
   const { correo, contrasena } = req.body;
 
   if (!correo || !contrasena) {
@@ -63,42 +15,21 @@ const login = async (req, res) => {
   }
 
   try {
-    const result = await db.query(
-      `SELECT *, (bloqueado_hasta IS NOT NULL AND bloqueado_hasta > CURRENT_TIMESTAMP) AS bloqueado
-       FROM usuarios WHERE correo = $1`,
-      [correo]
-    );
+    const result = await db.query('SELECT * FROM usuarios WHERE correo = $1', [correo]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
 
     const usuario = result.rows[0];
 
-    if (usuario.bloqueado) {
-      return res.status(423).json({ mensaje: 'Cuenta bloqueada temporalmente. Intenta más tarde.' });
-    }
-
+    // Verificar contraseña con bcrypt
     const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
     if (!contrasenaValida) {
-      await db.query(
-        `UPDATE usuarios
-         SET intentos_fallidos = intentos_fallidos + 1,
-             bloqueado_hasta = CASE
-               WHEN intentos_fallidos + 1 >= $2
-               THEN CURRENT_TIMESTAMP + make_interval(mins => $3)
-               ELSE bloqueado_hasta END
-         WHERE id_usuario = $1`,
-        [usuario.id_usuario, MAX_INTENTOS, BLOQUEO_MINUTOS]
-      );
-      return res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
+      return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
     }
 
-    await db.query(
-      'UPDATE usuarios SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id_usuario = $1',
-      [usuario.id_usuario]
-    );
-
+    // Generar Token JWT
     const token = jwt.sign(
       {
         id_usuario: usuario.id_usuario,
@@ -128,11 +59,10 @@ const login = async (req, res) => {
   }
 };
 
-// ============================================
-// CAMBIAR CONTRASEÑA (De Enrique)
-// ============================================
+// Cambiar Contraseña del Usuario Autenticado
 const cambiarContrasena = async (req, res) => {
   const { contrasenaActual, nuevaContrasena } = req.body;
+  // Obtiene id_usuario desde req.usuario o req.user según tu middleware de autenticación
   const id_usuario = req.usuario?.id_usuario || req.user?.id_usuario;
 
   if (!id_usuario) {
@@ -144,6 +74,7 @@ const cambiarContrasena = async (req, res) => {
   }
 
   try {
+    // 1. Consultar usuario actual en PostgreSQL
     const result = await db.query('SELECT * FROM usuarios WHERE id_usuario = $1', [id_usuario]);
 
     if (result.rows.length === 0) {
@@ -152,13 +83,16 @@ const cambiarContrasena = async (req, res) => {
 
     const usuario = result.rows[0];
 
+    // 2. Verificar si la contraseña actual ingresada coincide con el hash en BD
     const contrasenaValida = await bcrypt.compare(contrasenaActual, usuario.contrasena);
     if (!contrasenaValida) {
       return res.status(400).json({ mensaje: 'La contraseña actual es incorrecta' });
     }
 
+    // 3. Generar hash para la nueva contraseña
     const nuevaContrasenaHash = await bcrypt.hash(nuevaContrasena, 10);
 
+    // 4. Actualizar la contraseña en la base de datos
     await db.query('UPDATE usuarios SET contrasena = $1 WHERE id_usuario = $2', [
       nuevaContrasenaHash,
       id_usuario,
@@ -171,11 +105,7 @@ const cambiarContrasena = async (req, res) => {
   }
 };
 
-// ============================================
-// EXPORTAR TODAS LAS FUNCIONES
-// ============================================
 module.exports = {
-  register,           // ← Tu función
-  login,              // ← Versión de Enrique (mejorada)
-  cambiarContrasena,  // ← Función de Enrique
+  login,
+  cambiarContrasena,
 };

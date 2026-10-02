@@ -1,0 +1,70 @@
+.ficha-form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.ficha-form-title {
+  width: 100%;
+  text-align: center;
+}
+
+.header-with-action .title-blue.ficha-form-title {
+  text-align: center;
+}
+
+.ficha-form-field {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.ficha-form-field input,
+.ficha-form-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #94a3b8;
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--text-dark);
+  font: inherit;
+}
+
+.ficha-form-field input:focus,
+.ficha-form-field select:focus {
+  outline: 3px solid #bfdbfe;
+  border-color: var(--primary-blue);
+}
+
+.ficha-form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.ficha-form .btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .ficha-form-field {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .ficha-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .ficha-form-actions .btn-primary,
+  .ficha-form-actions .btn-back {
+    width: 100%;
+  }
+}

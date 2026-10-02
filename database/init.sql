@@ -17,8 +17,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
     contrasena VARCHAR(255) NOT NULL,
     rol rol_usuario NOT NULL DEFAULT 'ESTUDIANTE',
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    intentos_fallidos SMALLINT DEFAULT 0,
-    bloqueado_hasta TIMESTAMP,
 );
 
 -- Tabla de médico
@@ -75,7 +73,6 @@ CREATE TABLE IF NOT EXISTS fichas (
         REFERENCES fechas_disponibles(id_fecha) ON DELETE CASCADE,
     CONSTRAINT fk_ficha_horario FOREIGN KEY (id_horario) 
         REFERENCES horarios(id_horario) ON DELETE CASCADE
-            
 );
 
 -- Insertar usuario Administrador por defecto (Contraseña en hash bcrypt provisional)
